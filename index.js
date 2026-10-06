@@ -8,7 +8,7 @@ app.get('/', (req, res) => {
   res.json({ status: 'MAD PERU BOT API ACTIVO', version: '1.0.0', bot: 'Merlin' });
 });
 app.get('/webhook', (req, res) => {
-  const verify_token = process.env.VERIFY_TOKEN || 'madperu123';
+  const verify_token = process.env.VERIFY_TOKEN || 'mad123';
   if (req.query['hub.verify_token'] === verify_token) {
     res.send(req.query['hub.challenge']);
   } else {
