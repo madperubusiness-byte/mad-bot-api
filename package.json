@@ -1,7 +1,7 @@
-{
+ {
   "name": "mad-bot-api",
   "version": "1.0.0",
-  "description": "MAD PERU Bot API",
+  "description": "MAD PERU Bot API - Soluciano",
   "main": "index.js",
   "scripts": {
     "start": "node index.js"
@@ -9,6 +9,9 @@
   "dependencies": {
     "express": "^4.18.2",
     "cors": "^2.8.5",
-    "dotenv": "^16.3.1"
+    "dotenv": "^16.3.1",
+    "pino": "^8.16.3",
+    "@whiskeysockets/baileys": "^6.7.8",
+    "qrcode": "^1.5.3"
   }
 }
