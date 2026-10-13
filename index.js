@@ -6,7 +6,6 @@ const app = express();
 const PORT = process.env.PORT || 10000;
 const YAPE_NUM = "901 773 606";
 const AUTH_FOLDER = "./auth_info";
-const QR_FILE = "./qr-yape.jpg";
 
 const PRECIOS = {'1':11,'2':16,'3':24,'4':16,'5':24,'6':18,'7':22,'8':18,'9':20};
 const NOMBRES = {'1':'Lejía Galón','2':'LimpiaTodo','3':'Detergente','4':'Suavizante','5':'Cloro','6':'Ácido','7':'Pino','8':'Shampoo Carro','9':'Cera'};
