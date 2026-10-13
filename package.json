@@ -1,17 +1,66 @@
- {
-  "name": "mad-bot-api",
-  "version": "1.0.0",
-  "description": "MAD PERU Bot API - Soluciano",
-  "main": "index.js",
-  "scripts": {
-    "start": "node index.js"
-  },
-  "dependencies": {
-    "express": "^4.18.2",
-    "cors": "^2.8.5",
-    "dotenv": "^16.3.1",
-    "pino": "^8.16.3",
-    "@whiskeysockets/baileys": "^6.7.8",
-    "qrcode": "^1.5.3"
-  }
+ const express = require('express');
+const { default: makeWASocket, useMultiFileAuthState } = require('@whiskeysockets/baileys');
+const qrcode = require('qrcode');
+const fs = require('fs');
+const path = require('path');
+
+const app = express();
+const PORT = process.env.PORT || 10000;
+
+let qrCodeData = null;
+let isConnected = false;
+
+async function startBot() {
+    const { state, saveCreds } = await useMultiFileAuthState('./auth');
+    const sock = makeWASocket({
+        auth: state,
+        printQRInTerminal: true
+    });
+
+    sock.ev.on('connection.update', async (update) => {
+        const { connection, qr } = update;
+        if (qr) {
+            console.log('QR GENERADO SOLUCIANO');
+            qrCodeData = await qrcode.toDataURL(qr);
+        }
+        if (connection === 'open') {
+            isConnected = true;
+            qrCodeData = null;
+            console.log('BOT CONECTADO SOLUCIANO!');
+        }
+        if (connection === 'close') {
+            isConnected = false;
+            startBot();
+        }
+    });
+
+    sock.ev.on('creds.update', saveCreds);
+
+    sock.ev.on('messages.upsert', async (m) => {
+        const msg = m.messages[0];
+        if (!msg.message || msg.key.fromMe) return;
+        const text = msg.message.conversation || msg.message.extendedTextMessage?.text || '';
+        if (text.toLowerCase().includes('hola')) {
+            await sock.sendMessage(msg.key.remoteJid, { text: '¡Hola Soluciano! Soy tu Bot de MAD PERU 🏍️ ¿En qué te ayudo?' });
+        }
+    });
 }
+
+startBot();
+
+app.get('/', (req, res) => {
+    res.send('MAD BOT PERU - SOLUCIANO LIVE');
+});
+
+app.get('/qr', (req, res) => {
+    if (isConnected) {
+        return res.send('<h1>✅ BOT CONECTADO SOLUCIANO!</h1><p>Ya puedes usar WhatsApp</p>');
+    }
+    if (qrCodeData) {
+        return res.send(`<h1 style="text-align:center">QR SOLUCIANO - Escanea con tu WhatsApp Business</h1><div style="text-align:center"><img src="${qrCodeData}" style="width:350px;height:350px;"><br><p>Refresca si expira</p></div><script>setTimeout(()=>location.reload(),25000)</script>`);
+    } else {
+        return res.send('<h2>Generando QR Soluciano... refresca en 3 seg</h2><script>setTimeout(()=>location.reload(),3000)</script>');
+    }
+});
+
+app.listen(PORT, () => console.log('Server en puerto ' + PORT));
